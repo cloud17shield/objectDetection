@@ -38,7 +38,7 @@ producer = KafkaProducer(bootstrap_servers='G01-01:9092', compression_type='gzip
 detector = ObjectDetection()
 detector.setModelTypeAsRetinaNet()
 detector.setModelPath('/home/hduser/objectDetection/resnet50_coco_best_v2.0.1.h5')
-detector.loadModel()
+detector.loadModel(detection_speed="fastest")
 graph = tf.get_default_graph()
 
 
