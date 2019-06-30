@@ -14,8 +14,9 @@ import cv2
 from imageai.Detection import ObjectDetection
 import os
 from PIL import Image
+import tensorflow as tf
 
-conf = SparkConf().setAppName("drowsy streaming").setMaster("yarn")
+conf = SparkConf().setAppName("object detection streaming").setMaster("yarn")
 sc = SparkContext(conf=conf)
 ssc = StreamingContext(sc, 0.5)
 sql_sc = SQLContext(sc)
@@ -35,6 +36,7 @@ detector = ObjectDetection()
 detector.setModelTypeAsRetinaNet()
 detector.setModelPath('/home/hduser/objectDetection/resnet50_coco_best_v2.0.1.h5')
 detector.loadModel()
+graph = tf.get_default_graph()
 #detector.loadModel(detection_speed="fastest")
 
 
@@ -53,18 +55,21 @@ def handler(message):
         print("len", len(key), len(value))
 
         print("start processing")
-        image = np.asarray(bytearray(value), dtype="uint8")
-        # image = np.frombuffer(value, dtype=np.uint8)
-        # img = image.reshape(300, 400, 3)
-        # img = cv2.imread("/tmp/" + key)
-        img = cv2.imdecode(image, cv2.IMREAD_ANYCOLOR)
-        img_array = np.array(img)
-        detected_image_array, detections = detector.detectObjectsFromImage(input_type="array", input_image=img_array ,output_type="array")
-        #image_really = Image.fromarray(detected_image_array.astype('uint8')).convert('RGB')
+        global graph
+        global model
+        with graph.as_default():
+                image = np.asarray(bytearray(value), dtype="uint8")
+                # image = np.frombuffer(value, dtype=np.uint8)
+                # img = image.reshape(300, 400, 3)
+                # img = cv2.imread("/tmp/" + key)
+                img = cv2.imdecode(image, cv2.IMREAD_ANYCOLOR)
+                img_array = np.array(img)
+                detected_image_array, detections = detector.detectObjectsFromImage(input_type="array", input_image=img_array ,output_type="array")
+                #image_really = Image.fromarray(detected_image_array.astype('uint8')).convert('RGB')
 
-        producer.send(output_topic, value=cv2.imencode('.jpg', detected_image_array)[1].tobytes(), key=key.encode('utf-8'))
-        producer.flush()
-        print('send over!')
+                producer.send(output_topic, value=cv2.imencode('.jpg', detected_image_array)[1].tobytes(), key=key.encode('utf-8'))
+                producer.flush()
+                print('send over!')
 
 
 kafkaStream.foreachRDD(handler)
