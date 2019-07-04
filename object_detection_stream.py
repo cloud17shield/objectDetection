@@ -68,7 +68,8 @@ def handler(message):
             # img = image.reshape(300, 400, 3)
             # img = cv2.imread("/tmp/" + key)
             img = cv2.imdecode(image, cv2.IMREAD_ANYCOLOR)
-            img_array = np.array(img)
+            frame = imutils.resize(img, width=600)
+            img_array = np.array(frame)
             detected_image_array, detections = detector.detectObjectsFromImage(input_type="array",
                                                                                input_image=img_array,
                                                                                output_type="array")
