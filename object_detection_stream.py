@@ -18,7 +18,7 @@ import tensorflow as tf
 
 conf = SparkConf().setAppName("object detection streaming").setMaster("yarn")
 sc = SparkContext(conf=conf)
-ssc = StreamingContext(sc, 1)
+ssc = StreamingContext(sc, 0.1)
 sql_sc = SQLContext(sc)
 input_topic = 'input'
 output_topic = 'output'
@@ -68,8 +68,8 @@ def handler(message):
             # img = image.reshape(300, 400, 3)
             # img = cv2.imread("/tmp/" + key)
             img = cv2.imdecode(image, cv2.IMREAD_ANYCOLOR)
-            # frame = imutils.resize(img, width=600)
-            img_array = np.array(img)
+            frame = imutils.resize(img, width=600)
+            img_array = np.array(frame)
             detected_image_array, detections = detector.detectObjectsFromImage(input_type="array",
                                                                                input_image=img_array,
                                                                                output_type="array")
