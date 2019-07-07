@@ -15,6 +15,7 @@ from imageai.Detection import ObjectDetection
 import os
 from PIL import Image
 import tensorflow as tf
+import time
 
 conf = SparkConf().setAppName("object detection streaming").setMaster("yarn")
 conf.set("spark.scheduler.mode", "FAIR")
@@ -76,11 +77,12 @@ def handler(message):
                                                                                input_image=frame,
                                                                                output_type="array")
             # image_really = Image.fromarray(detected_image_array.astype('uint8')).convert('RGB')
-
-            producer.send(output_topic, value=cv2.imencode('.jpg', detected_image_array)[1].tobytes(),
-                          key=key.encode('utf-8'))
-            producer.flush()
-            print('send over!')
+            current = int(time.time() * 1000)
+            if current - int(key) < 3000:
+                producer.send(output_topic, value=cv2.imencode('.jpg', detected_image_array)[1].tobytes(),
+                              key=key.encode('utf-8'))
+                producer.flush()
+                print('send over!')
 
 
 kafkaStream.foreachRDD(handler)
