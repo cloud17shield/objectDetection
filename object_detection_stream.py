@@ -17,8 +17,10 @@ from PIL import Image
 import tensorflow as tf
 
 conf = SparkConf().setAppName("object detection streaming").setMaster("yarn")
+conf.set("spark.scheduler.mode", "FAIR")
 sc = SparkContext(conf=conf)
-ssc = StreamingContext(sc, 0.1)
+sc.setLocalProperty("spark.scheduler.pool", "pool3")
+ssc = StreamingContext(sc, 0.5)
 sql_sc = SQLContext(sc)
 input_topic = 'input'
 output_topic = 'output'
@@ -30,7 +32,7 @@ def my_decoder(s):
     return s
 
 
-kafkaStream = KafkaUtils.createStream(ssc, brokers, 'test-consumer-group', {input_topic: 15},
+kafkaStream = KafkaUtils.createStream(ssc, brokers, 'test-consumer-group-3', {input_topic: 15},
                                       valueDecoder=my_decoder)
 producer = KafkaProducer(bootstrap_servers='G01-01:9092', compression_type='gzip', batch_size=163840,
                          buffer_memory=33554432, max_request_size=20485760)
