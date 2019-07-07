@@ -38,7 +38,7 @@ producer = KafkaProducer(bootstrap_servers='G01-01:9092', compression_type='gzip
                          buffer_memory=33554432, max_request_size=20485760)
 
 detector = ObjectDetection()
-detector.setModelTypeAsRetinaNet()
+detector.setModelTypeAsYOLOv3()
 detector.setModelPath('/home/hduser/yolo.h5')
 detector.loadModel(detection_speed="flash")
 graph = tf.get_default_graph()
