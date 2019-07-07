@@ -37,8 +37,8 @@ producer = KafkaProducer(bootstrap_servers='G01-01:9092', compression_type='gzip
 
 detector = ObjectDetection()
 detector.setModelTypeAsRetinaNet()
-detector.setModelPath('/home/hduser/resnet50_coco_best_v2.0.1.h5')
-detector.loadModel(detection_speed="fastest")
+detector.setModelPath('/home/hduser/yolo.h5')
+detector.loadModel(detection_speed="flash")
 graph = tf.get_default_graph()
 
 
@@ -69,9 +69,9 @@ def handler(message):
             # img = cv2.imread("/tmp/" + key)
             img = cv2.imdecode(image, cv2.IMREAD_ANYCOLOR)
             frame = imutils.resize(img, width=600)
-            img_array = np.array(frame)
+            # img_array = np.array(frame)
             detected_image_array, detections = detector.detectObjectsFromImage(input_type="array",
-                                                                               input_image=img_array,
+                                                                               input_image=frame,
                                                                                output_type="array")
             # image_really = Image.fromarray(detected_image_array.astype('uint8')).convert('RGB')
 
