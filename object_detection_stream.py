@@ -42,6 +42,7 @@ detector = ObjectDetection()
 detector.setModelTypeAsTinyYOLOv3()
 detector.setModelPath('/home/hduser/yolo-tiny.h5')
 detector.loadModel(detection_speed="flash")
+custom = detector.CustomObjects(person=True, bottle=True, knife=True, cell_phone=True, fork=True)
 graph = tf.get_default_graph()
 
 
@@ -65,6 +66,7 @@ def handler(message):
         print("start processing")
         global graph
         global model
+        global custom
         with graph.as_default():
             image = np.asarray(bytearray(value), dtype="uint8")
             # image = np.frombuffer(value, dtype=np.uint8)
@@ -73,7 +75,8 @@ def handler(message):
             img = cv2.imdecode(image, cv2.IMREAD_ANYCOLOR)
             frame = imutils.resize(img, width=600)
             # img_array = np.array(frame)
-            detected_image_array, detections = detector.detectObjectsFromImage(input_type="array",
+            detected_image_array, detections = detector.detectObjectsFromImage(custom_objects=custom,
+                                                                               input_type="array",
                                                                                input_image=frame,
                                                                                output_type="array")
             # image_really = Image.fromarray(detected_image_array.astype('uint8')).convert('RGB')
