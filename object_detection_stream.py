@@ -75,10 +75,10 @@ def handler(message):
             img = cv2.imdecode(image, cv2.IMREAD_ANYCOLOR)
             frame = imutils.resize(img, width=600)
             # img_array = np.array(frame)
-            detected_image_array, detections = detector.detectObjectsFromImage(custom_objects=custom,
-                                                                               input_type="array",
-                                                                               input_image=frame,
-                                                                               output_type="array")
+            detected_image_array, detections = detector.detectCustomObjectsFromImage(custom_objects=custom,
+                                                                                     input_type="array",
+                                                                                     input_image=frame,
+                                                                                     output_type="array")
             # image_really = Image.fromarray(detected_image_array.astype('uint8')).convert('RGB')
             current = int(time.time() * 1000)
             if current - int(key) < 3000:
