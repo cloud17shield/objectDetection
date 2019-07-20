@@ -5,14 +5,14 @@ from imageai.Detection import ObjectDetection
 import tensorflow as tf
 
 detector = ObjectDetection()
-detector.setModelTypeAsYOLOv3()
-detector.setModelPath('yolo.h5')
+detector.setModelTypeAsTinyYOLOv3()
+detector.setModelPath('yolo-tiny.h5')
 detector.loadModel(detection_speed="flash")
 graph = tf.get_default_graph()
 cap = cv2.VideoCapture(0)
 while True:
     ret, frame = cap.read()
-    frame = imutils.resize(frame, width=450)
+    frame = imutils.resize(frame, width=600)
     # print(type(frame))
     with graph.as_default():
         # img_array = np.array(frame)
