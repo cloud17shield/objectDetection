@@ -79,7 +79,9 @@ def obj_detection(ss):
 
 
 def handler(message):
-    message.map(obj_detection)
+    newrdd = message.map(obj_detection)
+    for i in newrdd.collect():
+        print(i)
 
 
 kafkaStream.foreachRDD(handler)
