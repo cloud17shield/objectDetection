@@ -40,7 +40,7 @@ producer = KafkaProducer(bootstrap_servers='G01-01:9092', compression_type='gzip
 
 detector = ObjectDetection()
 detector.setModelTypeAsYOLOv3()
-detector.setModelPath('/home/hduser/yolo.h5')
+detector.setModelPath('/home/hduser/yolo-tiny.h5')
 detector.loadModel(detection_speed="flash")
 custom = detector.CustomObjects(person=True, bottle=True, knife=True, cell_phone=True, fork=True)
 graph = tf.get_default_graph()
