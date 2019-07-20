@@ -44,3 +44,44 @@ detector.setModelPath('/home/hduser/yolo-tiny.h5')
 detector.loadModel(detection_speed="flash")
 custom = detector.CustomObjects(person=True, bottle=True, knife=True, cell_phone=True, fork=True)
 graph = tf.get_default_graph()
+
+broadcast_detector = sc.broadcast(detector)
+broadcast_custom = sc.broadcast(custom)
+broadcast_graph = sc.broadcast(graph)
+broadcast_producer = sc.broadcast(producer)
+
+
+def obj_detection(ss):
+    key = ss[0]
+    value = ss[1]
+
+    with broadcast_graph.value.as_default():
+        image = np.asarray(bytearray(value), dtype="uint8")
+        # image = np.frombuffer(value, dtype=np.uint8)
+        # img = image.reshape(300, 400, 3)
+        # img = cv2.imread("/tmp/" + key)
+        img = cv2.imdecode(image, cv2.IMREAD_ANYCOLOR)
+        frame = imutils.resize(img, width=600)
+        # img_array = np.array(frame)
+        detected_image_array, detections = broadcast_detector.value.detectCustomObjectsFromImage(
+            custom_objects=broadcast_custom.value,
+            input_type="array",
+            input_image=frame,
+            output_type="array")
+        # image_really = Image.fromarray(detected_image_array.astype('uint8')).convert('RGB')
+        current = int(time.time() * 1000)
+        if current - int(key) < 3000:
+            broadcast_producer.value.send('output3', value=cv2.imencode('.jpg', detected_image_array)[1].tobytes(),
+                          key=key.encode('utf-8'))
+            producer.flush()
+            print('send over!')
+        return 0
+
+
+def handler(message):
+    message.map(obj_detection)
+
+
+kafkaStream.foreachRDD(handler)
+ssc.start()
+ssc.awaitTermination()
